@@ -10,6 +10,13 @@ class Value:
     def __repr__(self): # prints the value and the gradient
         return f"V:{self.value} G:{self.grad}"
     
+    def __neg__(self):
+        out = Value(-self.value, (self,))
+        def _backward():
+            self.grad += -1 * out.grad
+        out._backward = _backward
+        return out
+    
     def __add__(self,other): # A + B
         out = Value(self.value+other.value,(self,other))
         def _backward():

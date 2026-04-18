@@ -13,9 +13,7 @@ class GD_Optimizer:
 
     def loss(self, network, inputs, labels): # helper function
         output = network.forward(inputs)
-        print(f"Output: {output}")
         loss = self.cross_enthropy_with_intiger_labels(output, labels)
-        print(f"Loss: {loss}")
         return loss
 
     def update_weights(self,network,loss): # gradient descent step

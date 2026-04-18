@@ -16,7 +16,6 @@ class Network:
                     rows.append(self.random_weight(layer_sizes[i]))
                 layer.append(rows)
             self.layers.append(layer)
-        self.print()
 
     def forward(self, x):
         for layer_index in range(len(self.layers)):
@@ -28,9 +27,7 @@ class Network:
                     sum = sum + result
                 y.append(sum)
             if layer_index < len(self.layers) - 1:
-                x = []
-                for i in range(len(y)):
-                    x.append(y[i].relu())
+                x = [yi.relu() for yi in y]
             else:
                 x = y
         x = self.softmax(x)
@@ -51,7 +48,7 @@ class Network:
         sum = Value(0)
         for i in range(len(x)):
             sum += math.exp(1)**x[i]
+        out = []
         for i in range(len(x)):
-            x[i] = (math.exp(1)**x[i])
-            x[i] = x[i] / sum
-        return x
+            out.append((math.exp(1)**x[i]) / sum)
+        return out
