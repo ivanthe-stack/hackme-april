@@ -12,5 +12,5 @@ tests3.md
 1. gradients were rising so much that they were making the weghts overflow and NaN devnote1.md fo more details
 2. critical bug that was we were updating based of the wrong weights
 
-##ai practises
+## ai practises
 i was using the ai to write the code but i have read it to be sure it is doing the things it is suposed to
