@@ -17,7 +17,7 @@ parser.add_argument('-lr', '--lr', type=float, default=0.0001, help='learning ra
 parser.add_argument('-o', '--optimizer', default='sgd', choices=['sgd', 'adam'], help='optimizer')
 args = parser.parse_args()
 
-LAYERS = [64, 4096, 10]
+LAYERS = [64, 1024, 10]
 lr = args.lr
 optimizer = args.optimizer
 epochs = args.epochs
