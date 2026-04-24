@@ -17,7 +17,7 @@ parser.add_argument('-lr', '--lr', type=float, default=0.0001, help='learning ra
 parser.add_argument('-o', '--optimizer', default='sgd', choices=['sgd', 'adam'], help='optimizer')
 args = parser.parse_args()
 
-LAYERS = [64, 256, 10]
+LAYERS = [64, 4096, 10]
 lr = args.lr
 optimizer = args.optimizer
 epochs = args.epochs
@@ -121,16 +121,22 @@ class MLP:
                 cum_time = 0
 
     def save_best(self, path):
-        np.savez(path, weights=np.array(self.weights, dtype=object), biases=np.array(self.biases, dtype=object), layers=np.array(self.layers))
+        arr = {f'w{i}': w for i, w in enumerate(self.weights)}
+        arr.update({f'b{i}': b for i, b in enumerate(self.biases)})
+        arr['layers'] = self.layers
+        np.savez_compressed(path, **arr)
 
     def save(self, path):
-        np.savez(path, weights=np.array(self.weights, dtype=object), biases=np.array(self.biases, dtype=object), layers=np.array(self.layers))
+        arr = {f'w{i}': w for i, w in enumerate(self.weights)}
+        arr.update({f'b{i}': b for i, b in enumerate(self.biases)})
+        arr['layers'] = self.layers
+        np.savez_compressed(path, **arr)
 
     def load(self, path):
         data = np.load(path, allow_pickle=True)
-        self.weights = list(data['weights'])
-        self.biases = list(data['biases'])
         self.layers = list(data['layers'])
+        self.weights = [data[f'w{i}'] for i in range(len(self.layers) - 1)]
+        self.biases = [data[f'b{i}'] for i in range(len(self.layers) - 1)]
 
 digits = load_digits()
 X_train, X_test, y_train, y_test = train_test_split(digits.data, digits.target, test_size=0.2, random_state=seed)

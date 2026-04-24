@@ -23,9 +23,9 @@ class MLP:
 
     def load(self, path):
         data = np.load(path, allow_pickle=True)
-        self.weights = list(data['weights'])
-        self.biases = list(data['biases'])
         self.layers = list(data['layers'])
+        self.weights = [data[f'w{i}'] for i in range(len(self.layers) - 1)]
+        self.biases = [data[f'b{i}'] for i in range(len(self.layers) - 1)]
 
 np.random.seed(args.seed)
 
