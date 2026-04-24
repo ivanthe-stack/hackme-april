@@ -7,10 +7,11 @@ from sklearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-l', '--load', default=None, help='load model from file')
-parser.add_argument('-n', '--name', default='model.npz', help='save model to file')
+parser.add_argument('-n', '--name', default='model', help='save model to file')
 parser.add_argument('-s', '--seed', type=int, default=42, help='random seed')
 parser.add_argument('-e', '--epochs', type=int, default=10000, help='number of epochs')
 parser.add_argument('-p', '--print_every', type=int, default=1000, help='print every n epochs')
+parser.add_argument('-b', '--check_best_every', type=int, default=10, help='check for best test loss every n epochs')
 parser.add_argument('-c', '--csv', default=None, help='save training log to csv')
 parser.add_argument('-lr', '--lr', type=float, default=0.0001, help='learning rate')
 parser.add_argument('-o', '--optimizer', default='sgd', choices=['sgd', 'adam'], help='optimizer')
@@ -21,6 +22,7 @@ lr = args.lr
 optimizer = args.optimizer
 epochs = args.epochs
 print_every = args.print_every
+check_best_every = args.check_best_every
 seed = args.seed
 clip_grad = 1.0
 
@@ -61,6 +63,9 @@ class MLP:
         self.losses = []
         self.csv_data = []
         cum_time = 0
+        self.best_test_loss = float('inf')
+        self.best_weights = [w.copy() for w in self.weights]
+        self.best_biases = [b.copy() for b in self.biases]
         
         if optimizer == 'adam':
             self.init_adam()
@@ -104,9 +109,16 @@ class MLP:
             test_out = self.forward(X_test)
             test_loss = -np.mean(np.log(test_out[np.arange(len(y_test)), y_test] + 1e-8))
             self.csv_data.append({'epoch': epoch, 'train_loss': loss, 'test_loss': test_loss, 'test_acc': acc, 'time': cum_time})
+            if epoch % check_best_every == 0 and test_loss < self.best_test_loss:
+                self.best_test_loss = test_loss
+                self.best_weights = [w.copy() for w in self.weights]
+                self.best_biases = [b.copy() for b in self.biases]
             if epoch % print_every == 0:
                 print(f"{epoch:<6} {loss:<12.4f} {test_loss:<12.4f} {acc:<10.4f} {cum_time:<10.4f} {cum_time/print_every:<10.4f}")
                 cum_time = 0
+
+    def save_best(self, path):
+        np.savez(path, weights=np.array(self.weights, dtype=object), biases=np.array(self.biases, dtype=object), layers=np.array(self.layers))
 
     def save(self, path):
         np.savez(path, weights=np.array(self.weights, dtype=object), biases=np.array(self.biases, dtype=object), layers=np.array(self.layers))
@@ -143,8 +155,14 @@ if args.csv:
         writer.writeheader()
         writer.writerows(mlp.csv_data)
     print(f"Saved {args.csv}")
-mlp.save(args.name)
-print(f"Saved {args.name}")
+mlp.save(args.name + "_last.npz")
+name_base = args.name
+mlp.weights = mlp.best_weights
+mlp.biases = mlp.best_biases
+mlp.save_best(f"{name_base}_best.npz")
+print(f"Saved {args.name}_last.npz")
+print(f"Saved {args.name}_best.npz")
+print(f"Best test loss: {mlp.best_test_loss:.4f}")
 print(f"seed={seed}")
 print(f"arch={LAYERS}")
 print(f"epochs={epochs}")
