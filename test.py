@@ -34,9 +34,10 @@ X_train, X_test, y_train, y_test = train_test_split(digits.data, digits.target, 
 X_train = X_train / 16.0
 X_test = X_test / 16.0
 
-mlp = MLP([64, 16, 10])
+mlp = MLP([0])
 mlp.load(args.model)
 print(f"Loaded model from {args.model}")
+print(f"Architecture: {mlp.layers}")
 
 pred = np.argmax(mlp.forward(X_test), axis=1)
 acc = np.mean(pred == y_test)

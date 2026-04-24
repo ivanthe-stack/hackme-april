@@ -17,7 +17,7 @@ parser.add_argument('-lr', '--lr', type=float, default=0.0001, help='learning ra
 parser.add_argument('-o', '--optimizer', default='sgd', choices=['sgd', 'adam'], help='optimizer')
 args = parser.parse_args()
 
-LAYERS = [64, 16, 10]
+LAYERS = [64, 256, 10]
 lr = args.lr
 optimizer = args.optimizer
 epochs = args.epochs
@@ -85,6 +85,9 @@ class MLP:
                 dw = np.clip(dw, -clip_grad, clip_grad)
                 db = np.clip(db, -clip_grad, clip_grad)
                 
+                old_weights = self.weights[i].copy()
+                old_biases = self.biases[i].copy()
+                
                 if optimizer == 'adam':
                     self.t += 1
                     self.m_w[i] = beta1 * self.m_w[i] + (1 - beta1) * dw
@@ -102,7 +105,7 @@ class MLP:
                     self.biases[i] -= lr * db
                 
                 if i > 0:
-                    dout = dout @ self.weights[i].T * (self.xs[i] > 0)
+                    dout = dout @ old_weights.T * (self.xs[i] > 0)
             cum_time += time.perf_counter() - t0
             pred = np.argmax(self.forward(X_test), axis=1)
             acc = np.mean(pred == y_test)
