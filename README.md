@@ -15,3 +15,5 @@ expiriment1.md
 
 ## ai practises
 i was using the ai to write the code but i have read it to be sure it is doing the things it is suposed to
+and never said to the agent do x it was always like example do x in y way with z technology
+using it a a transpilotor between language and code not as a programer who can plan in its own all the decisions were made by me
