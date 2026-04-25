@@ -2,6 +2,9 @@
 models to read 8x8 numbers
 this is build for https://tues-ai.github.io/HackMe-April
 
+## achievements 
+best test accuracy achieved by a model is  0.8194 the architecture was [64, 1024, 10]
+
 ## docs include/
 devnote1.md
 tests1.md
